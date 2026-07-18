@@ -1,8 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ 
+  connectionString: connectionString || "postgresql://postgres:postgres@localhost:5432/postgres"
 });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 // Helper to generate slugs
 function slugify(text: string) {
