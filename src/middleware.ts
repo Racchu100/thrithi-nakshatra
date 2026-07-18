@@ -1,6 +1,10 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  process.env.NEXTAUTH_SECRET = "thrithi-nakshatra-jwt-secret-key-987";
+}
+
 export default withAuth(
   function middleware(req) {
     return NextResponse.next();
@@ -12,6 +16,7 @@ export default withAuth(
     pages: {
       signIn: "/admin/login",
     },
+    secret: process.env.NEXTAUTH_SECRET || "thrithi-nakshatra-jwt-secret-key-987",
   }
 );
 
