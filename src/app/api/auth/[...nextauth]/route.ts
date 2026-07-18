@@ -1,15 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// Fallbacks for NextAuth to satisfy production environment checks on Vercel
-if (!process.env.NEXTAUTH_SECRET) {
-  process.env.NEXTAUTH_SECRET = "thrithi-nakshatra-jwt-secret-key-987";
-}
-if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
-  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-}
-
-const handler = NextAuth({
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Admin Panel",
@@ -53,6 +45,19 @@ const handler = NextAuth({
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 1 day session
   }
-});
+};
 
-export { handler as GET, handler as POST };
+async function auth(req: any, res: any) {
+  // Dynamically set NEXTAUTH_URL based on the request headers to support any Vercel domain/alias
+  const host = req.headers.get("host") || "thrithi-nakshatra.vercel.app";
+  const protocol = req.headers.get("x-forwarded-proto") || "https";
+  process.env.NEXTAUTH_URL = `${protocol}://${host}`;
+  
+  if (!process.env.NEXTAUTH_SECRET) {
+    process.env.NEXTAUTH_SECRET = "thrithi-nakshatra-jwt-secret-key-987";
+  }
+
+  return NextAuth(req, res, authOptions);
+}
+
+export { auth as GET, auth as POST };
