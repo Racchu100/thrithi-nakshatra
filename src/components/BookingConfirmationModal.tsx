@@ -1,18 +1,26 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface BookingConfirmationModalProps {
   onClose: () => void;
 }
 
 export default function BookingConfirmationModal({ onClose }: BookingConfirmationModalProps) {
+  const router = useRouter();
+
+  const handleContinue = () => {
+    onClose();
+    router.push("/shop");
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
-        onClick={onClose}
+        onClick={handleContinue}
       />
 
       {/* Modal Card */}
@@ -32,7 +40,7 @@ export default function BookingConfirmationModal({ onClose }: BookingConfirmatio
           </p>
 
           <button
-            onClick={onClose}
+            onClick={handleContinue}
             className="w-full gold-gradient hover:opacity-95 text-black font-bold uppercase tracking-widest text-xs py-3.5 transition duration-300 rounded shadow-md"
           >
             Continue Shopping
