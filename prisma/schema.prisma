@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id                 String             @id @default(uuid())
+  name               String
+  slug               String             @unique
+  description        String
+  categoryId         String
+  category           Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategoryId      String?
+  subcategory        Subcategory?       @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  type               String             // "rent", "sale", "both"
+  priceSale          Float?
+  priceRentPerPeriod Float?
+  rentDurations      String             // Comma-separated list of durations e.g. "3,5,7,10,15" (days)
+  images             String             // Comma-separated or JSON string of image URLs
+  stockStatus        String             // "available", "out_of_stock"
+  featured           Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  bookings           Booking[]
+  purchaseInquiries  PurchaseInquiry[]
+  blockedDates       BlockedDate[]
+}
+
+model Category {
+  id            String        @id @default(uuid())
+  name          String        @unique
+  slug          String        @unique
+  products      Product[]
+  subcategories Subcategory[]
+}
+
+model Subcategory {
+  id         String    @id @default(uuid())
+  name       String
+  slug       String    @unique
+  categoryId String
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products   Product[]
+}
+
+model Booking {
+  id           String   @id @default(uuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerName String
+  phone        String
+  startDate    DateTime
+  endDate      DateTime
+  durationDays Int
+  totalAmount  Float
+  status       String   // "pending", "confirmed", "completed", "cancelled"
+  createdAt    DateTime @default(now())
+}
+
+model PurchaseInquiry {
+  id           String   @id @default(uuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerName String
+  phone        String
+  createdAt    DateTime @default(now())
+}
+
+model BlockedDate {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  date      DateTime
+}

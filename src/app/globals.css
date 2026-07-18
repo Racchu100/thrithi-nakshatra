@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold-50: #FAF7F0;
+  --color-gold-100: #F3EAD3;
+  --color-gold-500: #C9A24B;
+  --color-gold-600: #B28E3E;
+  --color-gold-light: #E9C878;
+  
+  --color-dark-bg: #0B0B0B;
+  --color-dark-card: #111111;
+  --color-dark-border: #222222;
+  
+  --color-wine-500: #7A1F2B;
+  --color-wine-600: #631821;
+  --color-wine-700: #4D1118;
+  
+  --font-serif: var(--font-playfair), serif;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+:root {
+  --background: #FAF7F0;
+  --foreground: #111111;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom scrollbar and premium details */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF7F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A24B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B28E3E;
+}
+
+.gold-border {
+  border: 1px solid rgba(201, 162, 75, 0.3);
+}
+
+.gold-border-b {
+  border-bottom: 1px solid rgba(201, 162, 75, 0.3);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #C9A24B 0%, #E9C878 50%, #C9A24B 100%);
+}
+
+.dark-gradient {
+  background: linear-gradient(180deg, #161616 0%, #0B0B0B 100%);
+}
