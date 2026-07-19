@@ -12,13 +12,34 @@ export default async function HomePage() {
     take: 8,
   });
 
-  const featuredProducts = await prisma.product.findMany({
+  let featuredProducts = await prisma.product.findMany({
     where: { featured: true },
-    take: 4,
+    take: 8,
     include: {
       category: true,
     },
   });
+
+  // If we have fewer than 8 featured products, backfill with the latest products
+  if (featuredProducts.length < 8) {
+    const featuredIds = featuredProducts.map((p) => p.id);
+    const extraNeeded = 8 - featuredProducts.length;
+    const additionalProducts = await prisma.product.findMany({
+      where: {
+        id: {
+          notIn: featuredIds,
+        },
+      },
+      take: extraNeeded,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        category: true,
+      },
+    });
+    featuredProducts = [...featuredProducts, ...additionalProducts];
+  }
 
   return (
     <div className="space-y-20 pb-20 bg-[#FAF7F0]">
