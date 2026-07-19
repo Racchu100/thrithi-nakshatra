@@ -21,6 +21,7 @@ export default function CartDrawer() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const [mounted, setMounted] = useState(false);
@@ -33,13 +34,26 @@ export default function CartDrawer() {
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPhoneError("");
+    setError("");
+
     if (!customerName || !phone) {
       setError("Please fill in all details");
       return;
     }
 
+    // Validate phone number contains exactly 10 digits
+    const digitsOnly = phone.replace(/\D/g, "");
+    const cleanDigits = (digitsOnly.length === 12 && digitsOnly.startsWith("91")) 
+      ? digitsOnly.substring(2) 
+      : digitsOnly;
+
+    if (cleanDigits.length !== 10) {
+      setPhoneError("Enter 10 digit mobile number");
+      return;
+    }
+
     setLoading(true);
-    setError("");
 
     try {
       const response = await fetch("/api/bookings", {
@@ -48,7 +62,7 @@ export default function CartDrawer() {
         body: JSON.stringify({
           items,
           customerName,
-          phone
+          phone: cleanDigits // Send sanitized 10-digit number
         })
       });
 
@@ -63,6 +77,7 @@ export default function CartDrawer() {
       setCheckoutMode(false);
       setCustomerName("");
       setPhone("");
+      setPhoneError("");
       setCartOpen(false);
       setShowConfirmation(true);
     } catch (err: any) {
@@ -262,20 +277,30 @@ export default function CartDrawer() {
                         />
                       </div>
 
-                      <div>
-                        <label htmlFor="customer-phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          id="customer-phone"
-                          required
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="e.g. +91 99999 99999"
-                          className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#C9A24B] transition duration-200"
-                        />
-                      </div>
+                       <div>
+                         <label htmlFor="customer-phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                           Phone Number
+                         </label>
+                         <input
+                           type="tel"
+                           id="customer-phone"
+                           required
+                           value={phone}
+                           onChange={(e) => {
+                             setPhone(e.target.value);
+                             if (phoneError) setPhoneError("");
+                           }}
+                           placeholder="e.g. 9999999999"
+                           className={`w-full bg-white/5 border rounded px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none transition duration-200 ${
+                             phoneError ? "border-rose-500 focus:border-rose-500" : "border-white/10 focus:border-[#C9A24B]"
+                           }`}
+                         />
+                         {phoneError && (
+                           <span className="block mt-1.5 text-xs text-rose-500 font-medium">
+                             {phoneError}
+                           </span>
+                         )}
+                       </div>
 
                       <div className="bg-[#C9A24B]/5 border border-[#C9A24B]/20 p-4 rounded text-xs space-y-2 text-[#E9C878]">
                         <div className="flex items-center gap-2 font-bold">
