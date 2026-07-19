@@ -90,7 +90,7 @@ export async function PUT(
     return NextResponse.json(updated);
   } catch (error: any) {
     console.error("PUT /api/products/[id] error:", error);
-    return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to update product" }, { status: 500 });
   }
 }
 
