@@ -22,6 +22,7 @@ export default function CartDrawer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [showDoubleCheck, setShowDoubleCheck] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const [mounted, setMounted] = useState(false);
@@ -30,7 +31,7 @@ export default function CartDrawer() {
   }, []);
 
   if (!mounted) return null;
-  if (!isCartOpen && !showConfirmation) return null;
+  if (!isCartOpen && !showConfirmation && !showDoubleCheck) return null;
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +54,17 @@ export default function CartDrawer() {
       return;
     }
 
+    setShowDoubleCheck(true);
+  };
+
+  const confirmAndProceedBooking = async () => {
     setLoading(true);
+    setError("");
+
+    const digitsOnly = phone.replace(/\D/g, "");
+    const cleanDigits = (digitsOnly.length === 12 && digitsOnly.startsWith("91")) 
+      ? digitsOnly.substring(2) 
+      : digitsOnly;
 
     try {
       const response = await fetch("/api/bookings", {
@@ -62,7 +73,7 @@ export default function CartDrawer() {
         body: JSON.stringify({
           items,
           customerName,
-          phone: cleanDigits // Send sanitized 10-digit number
+          phone: cleanDigits
         })
       });
 
@@ -78,10 +89,12 @@ export default function CartDrawer() {
       setCustomerName("");
       setPhone("");
       setPhoneError("");
+      setShowDoubleCheck(false);
       setCartOpen(false);
       setShowConfirmation(true);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
+      setShowDoubleCheck(false);
     } finally {
       setLoading(false);
     }
@@ -339,7 +352,45 @@ export default function CartDrawer() {
         </div>
       )}
 
-      {/* Confirmation Modal overlay */}
+      {/* Double Check Modal */}
+      {showDoubleCheck && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300" />
+
+          {/* Modal Card */}
+          <div className="relative w-full max-w-sm transform overflow-hidden rounded-lg bg-[#111111] border border-[#C9A24B] p-6 text-center shadow-2xl transition-all duration-300 animate-in zoom-in-95 duration-200">
+            <h3 className="font-serif text-lg font-bold tracking-wide text-white uppercase mb-3">
+              Double Check Number
+            </h3>
+
+            <p className="text-gray-300 text-sm leading-relaxed mb-6">
+              Hii <span className="text-[#E9C878] font-bold">{customerName}</span>, kindly recheck your number:
+              <span className="block text-white text-lg font-mono font-bold mt-2 bg-white/5 py-2 rounded border border-white/10 tracking-wider">
+                {phone}
+              </span>
+              and then proceed.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDoubleCheck(false)}
+                className="flex-1 border border-gray-600 hover:border-[#C9A24B] text-gray-400 hover:text-white font-bold uppercase tracking-widest text-[10px] py-3 transition duration-300 rounded"
+              >
+                Edit Number
+              </button>
+              <button
+                onClick={confirmAndProceedBooking}
+                disabled={loading}
+                className="flex-1 gold-gradient hover:opacity-95 text-black font-bold uppercase tracking-widest text-[10px] py-3 transition duration-300 rounded shadow-md disabled:bg-gray-800 disabled:text-gray-500"
+              >
+                {loading ? "Processing..." : "Proceed"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirmation && (
         <BookingConfirmationModal onClose={() => setShowConfirmation(false)} />
       )}
