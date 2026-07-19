@@ -35,28 +35,49 @@ export default function ShopCatalogClient({ products, shopTitle }: ShopCatalogCl
 
   const [searchVal, setSearchVal] = useState(searchParams.get("query") || "");
 
-  // Keep searchVal in sync when query is cleared externally
+  // Keep searchVal in sync when query is cleared externally (e.g. on reset)
   useEffect(() => {
-    setSearchVal(searchParams.get("query") || "");
+    const currentQuery = searchParams.get("query") || "";
+    if (currentQuery !== searchVal) {
+      setSearchVal(currentQuery);
+    }
   }, [searchParams]);
 
+  // Debounce updating URL parameter for persistence & sharing
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const query = searchVal.trim();
+      
+      if (query) {
+        params.set("query", query);
+      } else {
+        params.delete("query");
+      }
+      
+      // Use router.replace to avoid clogging the history stack and prevent scroll jumps
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchVal, pathname, router, searchParams]);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams(searchParams.toString());
-    if (searchVal.trim()) {
-      params.set("query", searchVal.trim());
-    } else {
-      params.delete("query");
-    }
-    router.push(`${pathname}?${params.toString()}`);
+    e.preventDefault(); // Prevents page reload on enter key press
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("query");
-    router.push(`${pathname}?${params.toString()}`);
   };
+
+  const displayedProducts = products.filter((product) => {
+    const query = searchVal.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.description.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-[#FAF7F0]">
@@ -139,17 +160,17 @@ export default function ShopCatalogClient({ products, shopTitle }: ShopCatalogCl
 
       {/* Product Grid Area (Full width) */}
       <div className="w-full">
-        {products.length === 0 ? (
+        {displayedProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 bg-white border border-[#C9A24B]/25 rounded-lg text-center h-80 shadow-sm">
             <span className="text-3xl mb-4">💎</span>
             <h3 className="font-serif text-lg font-bold text-[#111111] mb-2">No Jewellery Found</h3>
             <p className="text-[#555555] text-xs max-w-md leading-relaxed">
-              We couldn't find any products matching your current filters. Try resetting the filters or modifying your price range.
+              We couldn't find any products matching your search term.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {products.map((product) => (
+            {displayedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
