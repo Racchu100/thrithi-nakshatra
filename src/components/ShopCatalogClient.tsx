@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { SlidersHorizontal, X, Search } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import FilterSidebar from "@/components/FilterSidebar";
 import SortSelect from "@/components/SortSelect";
@@ -28,6 +29,34 @@ interface ShopCatalogClientProps {
 
 export default function ShopCatalogClient({ products, shopTitle }: ShopCatalogClientProps) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [searchVal, setSearchVal] = useState(searchParams.get("query") || "");
+
+  // Keep searchVal in sync when query is cleared externally
+  useEffect(() => {
+    setSearchVal(searchParams.get("query") || "");
+  }, [searchParams]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchVal.trim()) {
+      params.set("query", searchVal.trim());
+    } else {
+      params.delete("query");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleClearSearch = () => {
+    setSearchVal("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("query");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-[#FAF7F0]">
@@ -53,6 +82,32 @@ export default function ShopCatalogClient({ products, shopTitle }: ShopCatalogCl
           </button>
           <SortSelect />
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-8 max-w-md">
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+          <input
+            type="text"
+            placeholder="Search jewellery by name or details..."
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
+            className="w-full bg-white border border-[#C9A24B]/35 focus:border-[#C9A24B] rounded pl-10 pr-10 py-3 text-xs text-[#111111] placeholder-gray-500 focus:outline-none transition duration-200 shadow-sm"
+          />
+          <div className="absolute left-3.5 pointer-events-none">
+            <Search className="h-4 w-4 text-[#7A1F2B]" />
+          </div>
+          {searchVal && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-3 p-1.5 text-gray-400 hover:text-black hover:bg-black/5 rounded-full transition duration-150 cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </form>
       </div>
 
       {/* Backdrop for Filters Drawer */}
