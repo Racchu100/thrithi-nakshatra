@@ -24,6 +24,7 @@ model Product {
   rentDurations      String             // Comma-separated list of durations e.g. "3,5,7,10,15" (days)
   images             String             // Comma-separated or JSON string of image URLs
   stockStatus        String             // "available", "out_of_stock"
+  quantity           Int                @default(5)
   featured           Boolean            @default(false)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -60,6 +61,7 @@ model Booking {
   durationDays Int
   totalAmount  Float
   status       String   // "pending", "confirmed", "completed", "cancelled"
+  quantity     Int      @default(1)
   createdAt    DateTime @default(now())
 }
 

@@ -36,6 +36,31 @@ export async function PUT(
         data: { status }
       });
 
+      const wasActive = previousStatus === "pending" || previousStatus === "confirmed";
+      const isActiveNow = status === "pending" || status === "confirmed";
+
+      if (wasActive && !isActiveNow) {
+        // Restore stock
+        await tx.product.update({
+          where: { id: booking.productId },
+          data: {
+            quantity: {
+              increment: booking.quantity
+            }
+          }
+        });
+      } else if (!wasActive && isActiveNow) {
+        // Deduct stock
+        await tx.product.update({
+          where: { id: booking.productId },
+          data: {
+            quantity: {
+              decrement: booking.quantity
+            }
+          }
+        });
+      }
+
       const startDate = new Date(booking.startDate);
       const endDate = new Date(booking.endDate);
       
@@ -150,6 +175,18 @@ export async function DELETE(
             productId: booking.productId,
             date: {
               in: dates
+            }
+          }
+        });
+      }
+
+      // If the booking was active, restore the stock quantity
+      if (booking.status === "pending" || booking.status === "confirmed") {
+        await tx.product.update({
+          where: { id: booking.productId },
+          data: {
+            quantity: {
+              increment: booking.quantity
             }
           }
         });

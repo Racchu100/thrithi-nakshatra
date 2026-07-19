@@ -13,6 +13,7 @@ interface Product {
   priceSale: number | null;
   priceRentPerPeriod: number | null;
   stockStatus: string;
+  quantity: number;
   featured: boolean;
   images: string;
   category: {
@@ -192,18 +193,23 @@ export default function AdminProductsPage() {
 
                       {/* Stock / Featured Status */}
                       <td className="py-4 px-6 space-y-2">
-                        <div className="flex items-center gap-1.5">
-                          {product.stockStatus === "available" ? (
-                            <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
-                              <Check className="h-3.5 w-3.5" />
-                              <span>In Stock</span>
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-rose-400">
-                              <X className="h-3.5 w-3.5" />
-                              <span>Out Of Stock</span>
-                            </span>
-                          )}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            {product.stockStatus === "available" ? (
+                              <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+                                <Check className="h-3.5 w-3.5" />
+                                <span>In Stock</span>
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-rose-400">
+                                <X className="h-3.5 w-3.5" />
+                                <span>Out Of Stock</span>
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-gray-500">
+                            Qty: <span className="font-bold text-white">{product.quantity}</span>
+                          </p>
                         </div>
                         {product.featured && (
                           <span className="inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C9A24B]/20 text-[#E9C878] border border-[#C9A24B]/20">

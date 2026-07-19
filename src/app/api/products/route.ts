@@ -129,6 +129,7 @@ export async function POST(request: NextRequest) {
       rentDurations, // Array or comma-separated string
       images, // Array or comma-separated string
       stockStatus,
+      quantity,
       featured
     } = body;
 
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest) {
         rentDurations: Array.isArray(rentDurations) ? rentDurations.join(",") : rentDurations || "",
         images: Array.isArray(images) ? images.join(",") : images || "",
         stockStatus: stockStatus || "available",
+        quantity: quantity !== undefined ? parseInt(quantity) : 5,
         featured: !!featured
       }
     });

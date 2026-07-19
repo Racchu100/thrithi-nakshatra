@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
             throw new Error(`Conflict: Dates are already booked for product: ${item.name}`);
           }
 
-          // Create Booking record
+           // Create Booking record
           const booking = await tx.booking.create({
             data: {
               productId: item.productId,
@@ -96,7 +96,18 @@ export async function POST(request: NextRequest) {
               endDate,
               durationDays: item.duration,
               totalAmount: parseFloat(item.price),
-              status: "pending"
+              status: "pending",
+              quantity: item.quantity || 1
+            }
+          });
+
+          // Subtract booked quantity from product stock
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              quantity: {
+                decrement: item.quantity || 1
+              }
             }
           });
 

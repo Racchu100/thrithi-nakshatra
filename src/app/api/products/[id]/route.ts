@@ -47,6 +47,7 @@ export async function PUT(
       rentDurations,
       images,
       stockStatus,
+      quantity,
       featured
     } = body;
 
@@ -78,6 +79,7 @@ export async function PUT(
     }
     
     if (stockStatus !== undefined) data.stockStatus = stockStatus;
+    if (quantity !== undefined) data.quantity = parseInt(quantity);
     if (featured !== undefined) data.featured = !!featured;
 
     const updated = await prisma.product.update({

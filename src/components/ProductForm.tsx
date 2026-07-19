@@ -38,6 +38,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [rentDurations, setRentDurations] = useState("3,5,7,10,15");
   const [images, setImages] = useState("");
   const [stockStatus, setStockStatus] = useState("available");
+  const [quantity, setQuantity] = useState("5");
   const [featured, setFeatured] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
           setRentDurations(data.rentDurations || "");
           setImages(data.images || "");
           setStockStatus(data.stockStatus || "available");
+          setQuantity(data.quantity !== undefined ? String(data.quantity) : "5");
           setFeatured(!!data.featured);
           setLoading(false);
         })
@@ -155,6 +157,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
           rentDurations,
           images,
           stockStatus,
+          quantity: parseInt(quantity) || 0,
           featured
         })
       });
@@ -415,6 +418,26 @@ export default function ProductForm({ productId }: ProductFormProps) {
               className="pl-10 w-full bg-white/5 border border-white/10 rounded px-4 py-3 text-sm text-white placeholder-gray-650 focus:outline-none focus:border-[#C9A24B] transition duration-200"
             />
           </div>
+        </div>
+
+        {/* Quantity (Stock) */}
+        <div>
+          <label htmlFor="prod-quantity" className="block font-bold uppercase tracking-wider text-gray-300 mb-2">
+            Product Stock Quantity *
+          </label>
+          <input
+            type="number"
+            id="prod-quantity"
+            required
+            min={0}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            placeholder="e.g. 5"
+            className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 text-sm text-white placeholder-gray-650 focus:outline-none focus:border-[#C9A24B] transition duration-200"
+          />
+          <p className="text-[10px] text-gray-500 mt-1">
+            Specify the number of units available in stock. The system automatically decrements this when rented, and restores it when completed/cancelled.
+          </p>
         </div>
 
         {/* Toggles (Stock & Featured) */}
