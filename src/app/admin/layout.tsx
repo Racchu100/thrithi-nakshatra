@@ -118,7 +118,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header Bar */}
-        <header className="h-20 border-b border-[#C9A24B]/20 bg-[#111111] px-4 flex items-center justify-between md:hidden shrink-0">
+        <header className="sticky top-0 z-30 h-20 border-b border-[#C9A24B]/20 bg-[#111111] px-4 flex items-center justify-between md:hidden shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 text-gray-400 hover:text-white"
